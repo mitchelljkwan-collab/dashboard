@@ -189,6 +189,64 @@
       letter-spacing: 0.06em;
     }
 
+    .cal-section {
+      margin-bottom: 40px;
+    }
+
+    .cal-day {
+      margin-bottom: 20px;
+    }
+
+    .cal-day-label {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: #444;
+      margin-bottom: 8px;
+    }
+
+    .cal-day-label.today { color: #7b8fff; }
+
+    .cal-event {
+      background: #1a1a1a;
+      border: 1px solid #2a2a2a;
+      border-radius: 8px;
+      padding: 12px 14px;
+      margin-bottom: 6px;
+      display: flex;
+      gap: 12px;
+      align-items: flex-start;
+    }
+
+    .cal-event.urgent { border-left: 3px solid #f44336; }
+    .cal-event.now { border-left: 3px solid #ff9800; }
+    .cal-event.normal { border-left: 3px solid #2a2a2a; }
+
+    .cal-time {
+      font-size: 11px;
+      color: #555;
+      min-width: 80px;
+      flex-shrink: 0;
+      padding-top: 2px;
+    }
+
+    .cal-details { flex: 1; }
+
+    .cal-title {
+      font-size: 13px;
+      font-weight: 600;
+      color: #e8e8e8;
+    }
+
+    .cal-meta {
+      font-size: 11px;
+      color: #555;
+      margin-top: 2px;
+    }
+
+    .cal-meta.warn { color: #ff9800; }
+
     .updated {
       text-align: center;
       font-size: 11px;
@@ -321,6 +379,55 @@
       </div>
       <div class="timeline-bar"><div class="timeline-fill" style="width: 40%"></div></div>
       <div class="timeline-meta"><span>Started</span><span>40% — framework delivered</span></div>
+    </div>
+
+  </div>
+
+  <div class="section-label">This Week</div>
+  <div class="cal-section">
+
+    <div class="cal-day">
+      <div class="cal-day-label today">Today — Tue 12 May</div>
+
+      <div class="cal-event urgent">
+        <div class="cal-time">1:30–2:30pm</div>
+        <div class="cal-details">
+          <div class="cal-title">Offer feedback call with Rachel</div>
+          <div class="cal-meta warn">Happening now (or just started)</div>
+        </div>
+      </div>
+
+      <div class="cal-event now">
+        <div class="cal-time">3:00–5:00pm</div>
+        <div class="cal-details">
+          <div class="cal-title">Sandy for jilltec</div>
+          <div class="cal-meta">Later today</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="cal-day">
+      <div class="cal-day-label">Thu 14 May</div>
+
+      <div class="cal-event now">
+        <div class="cal-time">3:00–4:15pm</div>
+        <div class="cal-details">
+          <div class="cal-title">Brett/Mitch Catch up</div>
+          <div class="cal-meta warn">You haven't responded to this invite yet. Organiser: brett.grib@gmail.com — Google Meet</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="cal-day">
+      <div class="cal-day-label">Fri 15 May</div>
+
+      <div class="cal-event normal">
+        <div class="cal-time">11:00am–5:00pm</div>
+        <div class="cal-details">
+          <div class="cal-title">PM Aesthetics video shoot</div>
+          <div class="cal-meta">Full day shoot</div>
+        </div>
+      </div>
     </div>
 
   </div>

@@ -109,6 +109,7 @@
 
     .row-value.highlight { color: #ff9800; }
     .row-value.action { color: #7b8fff; }
+    .row-value.urgent { color: #f44336; font-weight: 600; }
 
     .timeline-bar {
       margin-top: 14px;
@@ -167,6 +168,27 @@
       flex-shrink: 0;
     }
 
+    .focus-item.red { color: #f44336; }
+    .focus-item.red::before { color: #f44336; }
+
+    .alert-box {
+      background: #1a1a1a;
+      border: 1px solid #2a2a2a;
+      border-left: 3px solid #f44336;
+      border-radius: 12px;
+      padding: 16px 20px;
+      margin-bottom: 40px;
+    }
+
+    .alert-box h3 {
+      font-size: 13px;
+      font-weight: 600;
+      color: #f44336;
+      margin-bottom: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+
     .updated {
       text-align: center;
       font-size: 11px;
@@ -179,16 +201,25 @@
 
   <header>
     <h1>Agency Dashboard</h1>
-    <p>Mitchell Kwan — updated 12 May 2026</p>
+    <p>Mitchell Kwan — swept 12 May 2026, 1:22pm AWST</p>
   </header>
+
+  <div class="section-label">Alerts</div>
+  <div class="alert-box" style="margin-bottom: 40px;">
+    <h3>Action required</h3>
+    <div class="focus-item red">🚨 Rachel call in ~8 min — 1:30pm today. You've got a calendar invite.</div>
+    <div class="focus-item red">CommBank flagged $15.24 to MANUS AI (card x3045, 12 May). Confirm it via the CommBank app now — it's legit (Manus auto top-up), but CBA needs your tap to clear it.</div>
+    <div class="focus-item red">skinexpertsco.com.au auto-renewal failed. Crazy Domains billing needs updating or the domain gets deleted.</div>
+  </div>
 
   <div class="section-label">Today's Focus</div>
   <div class="focus-box" style="margin-bottom: 40px;">
-    <h3>Do these first</h3>
-    <div class="focus-item">🔥 Email Keshia today — she watched the website preview this morning for the first time</div>
-    <div class="focus-item">Prospect conversations — nail the ICP pain points</div>
-    <div class="focus-item">Check PM Aesthetics campaign results in Meta Ads Manager</div>
-    <div class="focus-item">Confirm Fresha booking embed decision with Keshia</div>
+    <h3>Do these today</h3>
+    <div class="focus-item">🔥 Email Keshia — Tella confirmed she watched the website preview at 2:36am this morning. Strike while it's hot.</div>
+    <div class="focus-item">Check PM Aesthetics campaign results in Meta Ads Manager. Client comms via operations@foundryclinical.au.</div>
+    <div class="focus-item">Confirm Fresha booking embed decision with Keshia.</div>
+    <div class="focus-item">CrazyTel call credit is -$19.90. Top it up.</div>
+    <div class="focus-item">ChatGPT Plus payment failing — update card in OpenAI settings or access ends soon.</div>
   </div>
 
   <div class="section-label">Client Projects</div>
@@ -209,7 +240,7 @@
         </div>
         <div class="row">
           <span class="row-label">🔥 Hot signal</span>
-          <span class="row-value highlight">Keshia watched the website preview for the first time this morning (12 May). Follow up today.</span>
+          <span class="row-value highlight">Tella confirmed Keshia watched the website preview for the first time at 2:36am 12 May. No direct email reply yet.</span>
         </div>
         <div class="row">
           <span class="row-label">Waiting on</span>
@@ -217,11 +248,11 @@
         </div>
         <div class="row">
           <span class="row-label">Last contact</span>
-          <span class="row-value">9 Apr — post-shoot check-in sent. No reply yet. Last Keshia email: 26 Mar.</span>
+          <span class="row-value">9 Apr — post-shoot check-in sent. No reply. Last Keshia email: 26 Mar.</span>
         </div>
         <div class="row">
           <span class="row-label">Next action</span>
-          <span class="row-value action">Email Keshia re: preview + get asset decisions. Then drop footage into build. Deploy to Vercel.</span>
+          <span class="row-value action">Email Keshia re: preview reaction + get asset decisions. Deploy to Vercel once assets in.</span>
         </div>
         <div class="row">
           <span class="row-label">Invoice</span>
@@ -251,7 +282,7 @@
         </div>
         <div class="row">
           <span class="row-label">Waiting on</span>
-          <span class="row-value highlight">Client comms via operations@foundryclinical.com — not yet visible in Gmail sweep. Check that inbox.</span>
+          <span class="row-value highlight">No emails from client this sweep. Check operations@foundryclinical.au inbox directly.</span>
         </div>
         <div class="row">
           <span class="row-label">Next action</span>
@@ -281,11 +312,11 @@
         </div>
         <div class="row">
           <span class="row-label">Waiting on</span>
-          <span class="row-value highlight">Client feedback on framework + pricing. No reply yet as of 12 May.</span>
+          <span class="row-value highlight">No reply as of 12 May sweep. Follow up by 14 May if still silent.</span>
         </div>
         <div class="row">
           <span class="row-label">Next action</span>
-          <span class="row-value action">Follow up if no reply by 14 May. Then schedule live training once framework approved.</span>
+          <span class="row-value action">Follow up 14 May. Schedule live training once framework approved.</span>
         </div>
       </div>
       <div class="timeline-bar"><div class="timeline-fill" style="width: 40%"></div></div>

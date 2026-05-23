@@ -1,0 +1,775 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Family planner — admin</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: #0f0f0f;
+      color: #e8e8e8;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      font-size: 14px;
+      line-height: 1.5;
+    }
+
+    /* ── Login ── */
+    #login-view {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      padding: 24px;
+    }
+
+    .login-box {
+      width: 100%;
+      max-width: 340px;
+    }
+
+    .login-box h1 {
+      font-size: 18px;
+      font-weight: 600;
+      color: #fff;
+      margin-bottom: 6px;
+    }
+
+    .login-box p {
+      color: #666;
+      font-size: 13px;
+      margin-bottom: 24px;
+    }
+
+    .login-box input[type="password"] {
+      width: 100%;
+      background: #1a1a1a;
+      border: 1px solid #333;
+      border-radius: 6px;
+      color: #e8e8e8;
+      font-size: 14px;
+      font-family: inherit;
+      padding: 10px 12px;
+      outline: none;
+      margin-bottom: 10px;
+    }
+
+    .login-box input:focus { border-color: #555; }
+
+    .login-box button {
+      width: 100%;
+      background: #fff;
+      color: #0f0f0f;
+      border: none;
+      border-radius: 6px;
+      font-size: 14px;
+      font-weight: 600;
+      font-family: inherit;
+      padding: 10px;
+      cursor: pointer;
+    }
+
+    .error-msg {
+      color: #f87171;
+      font-size: 13px;
+      margin-top: 8px;
+      display: none;
+    }
+
+    /* ── Dashboard ── */
+    #dashboard-view {
+      display: none;
+      padding: 24px 20px 60px;
+      max-width: 1000px;
+      margin: 0 auto;
+    }
+
+    .top-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 32px;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    .top-bar h1 {
+      font-size: 18px;
+      font-weight: 600;
+      color: #fff;
+    }
+
+    .top-bar-actions {
+      display: flex;
+      gap: 8px;
+    }
+
+    .btn {
+      background: #1a1a1a;
+      border: 1px solid #333;
+      border-radius: 6px;
+      color: #ccc;
+      font-size: 12px;
+      font-family: inherit;
+      padding: 6px 14px;
+      cursor: pointer;
+      text-decoration: none;
+      display: inline-block;
+      transition: border-color 0.15s;
+    }
+
+    .btn:hover { border-color: #555; color: #fff; }
+    .btn-danger { border-color: #7f1d1d; color: #f87171; }
+    .btn-danger:hover { border-color: #dc2626; color: #fca5a5; background: #1c0606; }
+
+    /* ── Response tracker ── */
+    .section { margin-bottom: 36px; }
+
+    .section-title {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: #555;
+      margin-bottom: 14px;
+    }
+
+    .tracker-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .tracker-chip {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: #1a1a1a;
+      border: 1px solid #2a2a2a;
+      border-radius: 8px;
+      padding: 10px 14px;
+    }
+
+    .tracker-chip .dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    .tracker-chip.responded { border-color: #1a4a30; }
+    .tracker-chip.responded .dot { background: #34d399; }
+    .tracker-chip.waiting .dot { background: #555; }
+
+    .tracker-chip .chip-name { font-size: 13px; color: #ccc; }
+    .tracker-chip .chip-date { font-size: 11px; color: #555; margin-top: 1px; }
+
+    .tracker-summary {
+      font-size: 13px;
+      color: #666;
+      margin-bottom: 14px;
+    }
+
+    /* ── Priority matrix ── */
+    .matrix-wrapper {
+      overflow-x: auto;
+      border: 1px solid #2a2a2a;
+      border-radius: 10px;
+    }
+
+    .matrix {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 500px;
+    }
+
+    .matrix th {
+      background: #111;
+      color: #666;
+      font-size: 11px;
+      font-weight: 500;
+      text-align: center;
+      padding: 8px 10px;
+      border-bottom: 1px solid #2a2a2a;
+      white-space: nowrap;
+    }
+
+    .matrix th.row-header {
+      text-align: left;
+      width: 200px;
+    }
+
+    .matrix td {
+      padding: 0;
+      border-bottom: 1px solid #1a1a1a;
+      text-align: center;
+    }
+
+    .matrix tr:last-child td { border-bottom: none; }
+
+    .matrix td.holiday-cell {
+      padding: 10px 12px;
+      text-align: left;
+      background: #111;
+    }
+
+    .holiday-cell .hname { font-size: 13px; color: #ccc; }
+    .holiday-cell .hperiod { font-size: 11px; color: #555; margin-top: 1px; }
+
+    .priority-cell {
+      font-size: 12px;
+      padding: 10px 8px;
+      color: #555;
+    }
+
+    .priority-cell.must  { background: rgba(127,29,29,0.5);  color: #fca5a5; }
+    .priority-cell.love  { background: rgba(120,53,15,0.5);  color: #fcd34d; }
+    .priority-cell.nice  { background: rgba(6,78,59,0.4);    color: #6ee7b7; }
+    .priority-cell.no    { color: #374151; }
+    .priority-cell.empty { color: #2a2a2a; }
+
+    /* ── Timeline ── */
+    .timeline-wrapper {
+      overflow-x: auto;
+      border: 1px solid #2a2a2a;
+      border-radius: 10px;
+    }
+
+    .timeline-table {
+      border-collapse: collapse;
+      min-width: 800px;
+      width: 100%;
+    }
+
+    .timeline-table th {
+      background: #111;
+      color: #555;
+      font-size: 10px;
+      font-weight: 500;
+      text-align: center;
+      padding: 6px 4px;
+      border-bottom: 1px solid #2a2a2a;
+      white-space: nowrap;
+    }
+
+    .timeline-table th.group-header {
+      text-align: left;
+      padding-left: 12px;
+      min-width: 160px;
+    }
+
+    .timeline-table td {
+      padding: 0;
+      border-bottom: 1px solid #1a1a1a;
+      height: 32px;
+    }
+
+    .timeline-table tr:last-child td { border-bottom: none; }
+
+    .timeline-table td.group-name {
+      padding: 6px 12px;
+      font-size: 12px;
+      color: #aaa;
+      background: #111;
+      white-space: nowrap;
+    }
+
+    .month-cell {
+      border-right: 1px solid #1c1c1c;
+      height: 32px;
+    }
+
+    .month-cell.available { background: #1a3a2a; }
+    .month-cell.overlap   { background: #065f46; }
+    .month-cell.holiday-marker { border-top: 2px solid #374151; }
+
+    /* ── Submission cards ── */
+    .cards-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 16px;
+    }
+
+    .card {
+      background: #1a1a1a;
+      border: 1px solid #2a2a2a;
+      border-radius: 10px;
+      padding: 18px;
+    }
+
+    .card-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      margin-bottom: 14px;
+      gap: 10px;
+    }
+
+    .card-name { font-size: 15px; font-weight: 600; color: #fff; }
+    .card-group { font-size: 12px; color: #555; margin-top: 2px; }
+    .card-date { font-size: 11px; color: #444; white-space: nowrap; }
+
+    .card-section { margin-bottom: 12px; }
+    .card-section-label {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: #444;
+      margin-bottom: 6px;
+    }
+
+    .mini-priorities { display: flex; flex-wrap: wrap; gap: 5px; }
+
+    .mini-chip {
+      font-size: 11px;
+      border-radius: 20px;
+      padding: 2px 8px;
+      color: #555;
+      background: #111;
+    }
+
+    .mini-chip.must  { background: rgba(127,29,29,0.6);  color: #fca5a5; }
+    .mini-chip.love  { background: rgba(120,53,15,0.5);  color: #fcd34d; }
+    .mini-chip.nice  { background: rgba(6,78,59,0.4);    color: #6ee7b7; }
+
+    .card-text { font-size: 13px; color: #aaa; line-height: 1.5; }
+
+    .travel-badges { display: flex; gap: 6px; flex-wrap: wrap; }
+    .badge {
+      font-size: 11px;
+      background: #111;
+      border: 1px solid #2a2a2a;
+      border-radius: 4px;
+      color: #777;
+      padding: 2px 8px;
+    }
+
+    .badge.active { border-color: #1a4a30; color: #34d399; }
+
+    .delete-btn {
+      background: none;
+      border: none;
+      color: #3a3a3a;
+      font-size: 16px;
+      cursor: pointer;
+      padding: 2px 4px;
+      border-radius: 4px;
+      line-height: 1;
+      flex-shrink: 0;
+    }
+    .delete-btn:hover { color: #f87171; background: #1c0606; }
+
+    .empty-state {
+      color: #444;
+      font-size: 14px;
+      padding: 40px 20px;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+
+<!-- ── Login view ── -->
+<div id="login-view">
+  <div class="login-box">
+    <h1>Family planner</h1>
+    <p>Admin access only</p>
+    <form method="POST" action="/admin/login">
+      <input type="password" name="password" placeholder="Password" autofocus>
+      <button type="submit">Sign in</button>
+    </form>
+    <p id="login-error" class="error-msg">Wrong password — try again.</p>
+  </div>
+</div>
+
+<!-- ── Dashboard view ── -->
+<div id="dashboard-view">
+  <div class="top-bar">
+    <h1>Family planning — responses</h1>
+    <div class="top-bar-actions">
+      <a href="/api/export.csv" class="btn" download>Export CSV</a>
+      <a href="/admin/logout" class="btn btn-danger">Sign out</a>
+    </div>
+  </div>
+
+  <!-- Response tracker -->
+  <div class="section">
+    <div class="section-title">Who's responded</div>
+    <p class="tracker-summary" id="tracker-summary"></p>
+    <div class="tracker-grid" id="tracker-grid"></div>
+  </div>
+
+  <!-- Priority matrix -->
+  <div class="section">
+    <div class="section-title">Holiday priority matrix</div>
+    <div class="matrix-wrapper">
+      <table class="matrix" id="priority-matrix">
+        <thead><tr id="matrix-head"><th class="row-header">Holiday / period</th></tr></thead>
+        <tbody id="matrix-body"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Availability timeline -->
+  <div class="section">
+    <div class="section-title">Availability timeline (Jun 2026 – Dec 2027)</div>
+    <div class="timeline-wrapper">
+      <table class="timeline-table" id="timeline-table"></table>
+    </div>
+  </div>
+
+  <!-- Submission cards -->
+  <div class="section">
+    <div class="section-title">All responses</div>
+    <div class="cards-grid" id="cards-grid"></div>
+  </div>
+</div>
+
+<script>
+const HOLIDAYS = [
+  { id: 'christmas_2026',  label: "Xmas & NYE",          period: 'Dec 26–Jan 27' },
+  { id: 'easter_2027',     label: 'Easter',               period: 'Apr 2027' },
+  { id: 'school_mid_2027', label: 'Mid-year break',       period: 'Jun/Jul 27' },
+  { id: 'christmas_2027',  label: "Xmas & NYE",           period: 'Dec 27–Jan 28' },
+  { id: 'easter_2028',     label: 'Easter',               period: 'Apr 2028' },
+  { id: 'school_mid_2028', label: 'Mid-year break',       period: 'Jun/Jul 28' },
+  { id: 'baby_first_visit', label: "Meet baby",           period: 'Oct/Nov 26' },
+  { id: 'baby_bday_2027',  label: "Baby 1st bday",        period: 'Sep 2027' },
+];
+
+const HOLIDAY_FULL = [
+  { id: 'christmas_2026',  label: "Christmas & New Year's", period: 'Dec 2026 – Jan 2027' },
+  { id: 'easter_2027',     label: 'Easter',                  period: 'April 2027' },
+  { id: 'school_mid_2027', label: 'Mid-year school break',   period: 'June / July 2027' },
+  { id: 'christmas_2027',  label: "Christmas & New Year's",  period: 'Dec 2027 – Jan 2028' },
+  { id: 'easter_2028',     label: 'Easter',                  period: 'March / April 2028' },
+  { id: 'school_mid_2028', label: 'Mid-year school break',   period: 'June / July 2028' },
+  { id: 'baby_first_visit', label: "Meeting the new baby",   period: 'Oct / Nov 2026' },
+  { id: 'baby_bday_2027',  label: "Baby's first birthday",   period: 'September 2027' },
+];
+
+const PRIORITY_LABELS = { must: '⭐ Must', love: '😊 Would love', nice: '🤷 Nice', no: '— Not fussed' };
+
+const GROUP_LABELS = {
+  mitchells_parents: "Mitchell's parents",
+  wifes_parents:     "Wife's parents",
+  mitchells_sister:  "Mitchell's sister",
+  other: 'Other',
+};
+
+const ALL_GROUPS = ['mitchells_parents', 'wifes_parents', 'mitchells_sister'];
+
+// Months for timeline: Jun 2026 – Dec 2027 = 19 months
+function buildMonths() {
+  const months = [];
+  let y = 2026, m = 6;
+  while (!(y === 2027 && m === 13)) {
+    months.push({ y, m, label: new Date(y, m - 1).toLocaleString('en', { month: 'short', year: '2-digit' }) });
+    m++;
+    if (m > 12) { m = 1; y++; }
+  }
+  return months;
+}
+
+function monthIdx(dateStr) {
+  if (!dateStr) return -1;
+  const d = new Date(dateStr);
+  return (d.getFullYear() - 2026) * 12 + d.getMonth() - 5; // 0 = Jun 2026
+}
+
+function esc(s) {
+  return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+async function load() {
+  const r = await fetch('/api/submissions');
+  if (r.status === 401) return; // shouldn't happen — auth checked on page load
+  const submissions = await r.json();
+
+  renderTracker(submissions);
+  renderMatrix(submissions);
+  renderTimeline(submissions);
+  renderCards(submissions);
+}
+
+function renderTracker(subs) {
+  const responded = new Set(subs.map(s => s.family_group));
+  const grid = document.getElementById('tracker-grid');
+  const summary = document.getElementById('tracker-summary');
+
+  summary.textContent = `${responded.size} of ${ALL_GROUPS.length} family groups responded`;
+
+  ALL_GROUPS.forEach(g => {
+    const sub = subs.find(s => s.family_group === g);
+    const chip = document.createElement('div');
+    chip.className = `tracker-chip ${sub ? 'responded' : 'waiting'}`;
+    chip.innerHTML = `
+      <div class="dot"></div>
+      <div>
+        <div class="chip-name">${esc(GROUP_LABELS[g])}</div>
+        ${sub ? `<div class="chip-date">Submitted ${new Date(sub.submitted_at + 'Z').toLocaleDateString('en-AU', {day:'numeric',month:'short'})}</div>` : '<div class="chip-date">Awaiting</div>'}
+      </div>`;
+    grid.appendChild(chip);
+  });
+
+  // Extra submissions from "other" groups
+  subs.filter(s => !ALL_GROUPS.includes(s.family_group)).forEach(s => {
+    const chip = document.createElement('div');
+    chip.className = 'tracker-chip responded';
+    chip.innerHTML = `<div class="dot"></div><div><div class="chip-name">${esc(s.name)}</div><div class="chip-date">Other · Submitted</div></div>`;
+    grid.appendChild(chip);
+  });
+}
+
+function renderMatrix(subs) {
+  if (!subs.length) {
+    document.getElementById('priority-matrix').closest('.matrix-wrapper').innerHTML =
+      '<div class="empty-state">No responses yet</div>';
+    return;
+  }
+
+  const head = document.getElementById('matrix-head');
+  const body = document.getElementById('matrix-body');
+
+  // Column headers = unique groups in order
+  const groups = [...new Set(subs.map(s => s.family_group))];
+  groups.forEach(g => {
+    const th = document.createElement('th');
+    th.textContent = GROUP_LABELS[g] || g;
+    head.appendChild(th);
+  });
+
+  // Rows = holidays
+  HOLIDAY_FULL.forEach(h => {
+    const tr = document.createElement('tr');
+
+    const tdLabel = document.createElement('td');
+    tdLabel.className = 'holiday-cell';
+    tdLabel.innerHTML = `<div class="hname">${esc(h.label)}</div><div class="hperiod">${esc(h.period)}</div>`;
+    tr.appendChild(tdLabel);
+
+    groups.forEach(g => {
+      const sub = subs.find(s => s.family_group === g);
+      const td = document.createElement('td');
+      td.className = 'priority-cell';
+      if (sub) {
+        const priorities = JSON.parse(sub.holiday_priorities || '{}');
+        const p = priorities[h.id] || 'no';
+        td.classList.add(p);
+        td.textContent = PRIORITY_LABELS[p] || p;
+      } else {
+        td.classList.add('empty');
+        td.textContent = '…';
+      }
+      tr.appendChild(td);
+    });
+
+    body.appendChild(tr);
+  });
+}
+
+function renderTimeline(subs) {
+  const months = buildMonths();
+  const table = document.getElementById('timeline-table');
+
+  // Build coverage maps: for each month index, which groups are available
+  const coverage = {}; // monthIdx -> Set of groups
+  months.forEach((_, i) => { coverage[i] = new Set(); });
+
+  subs.forEach(s => {
+    const windows = JSON.parse(s.availability || '[]');
+    windows.forEach(w => {
+      const si = monthIdx(w.start);
+      const ei = monthIdx(w.end);
+      for (let i = Math.max(0, si); i <= Math.min(months.length - 1, ei); i++) {
+        if (i >= 0) coverage[i].add(s.family_group);
+      }
+    });
+  });
+
+  // Header row
+  const thead = document.createElement('thead');
+  const headerRow = document.createElement('tr');
+  const thGroup = document.createElement('th');
+  thGroup.className = 'group-header';
+  thGroup.textContent = 'Family group';
+  headerRow.appendChild(thGroup);
+  months.forEach(m => {
+    const th = document.createElement('th');
+    th.textContent = m.label;
+    headerRow.appendChild(th);
+  });
+  thead.appendChild(headerRow);
+  table.appendChild(thead);
+
+  // Data rows
+  const tbody = document.createElement('tbody');
+
+  const groups = [...new Set(subs.map(s => s.family_group))];
+
+  if (!groups.length) {
+    const row = document.createElement('tr');
+    const td = document.createElement('td');
+    td.colSpan = months.length + 1;
+    td.className = 'empty-state';
+    td.textContent = 'No responses yet';
+    row.appendChild(td);
+    tbody.appendChild(row);
+  } else {
+    groups.forEach(g => {
+      const sub = subs.find(s => s.family_group === g);
+      const windows = sub ? JSON.parse(sub.availability || '[]') : [];
+
+      const tr = document.createElement('tr');
+      const tdName = document.createElement('td');
+      tdName.className = 'group-name';
+      tdName.textContent = GROUP_LABELS[g] || g;
+      tr.appendChild(tdName);
+
+      months.forEach((m, i) => {
+        const td = document.createElement('td');
+        td.className = 'month-cell';
+
+        const inWindow = windows.some(w => {
+          const si = monthIdx(w.start);
+          const ei = monthIdx(w.end);
+          return i >= si && i <= ei;
+        });
+
+        if (inWindow) {
+          td.classList.add('available');
+          // Check overlap
+          if (coverage[i] && coverage[i].size >= 2) {
+            td.classList.add('overlap');
+          }
+        }
+
+        tr.appendChild(td);
+      });
+
+      tbody.appendChild(tr);
+    });
+
+    // Overlap row legend
+    const legendRow = document.createElement('tr');
+    const legendTd = document.createElement('td');
+    legendTd.colSpan = months.length + 1;
+    legendTd.style.cssText = 'padding:8px 12px; font-size:11px; color:#555; background:#0f0f0f; border-top:1px solid #1a1a1a;';
+    legendTd.innerHTML = '<span style="display:inline-block;width:10px;height:10px;background:#1a3a2a;margin-right:5px;border-radius:2px;"></span>Available &nbsp;&nbsp; <span style="display:inline-block;width:10px;height:10px;background:#065f46;margin-right:5px;border-radius:2px;"></span>Overlap (multiple groups free)';
+    legendRow.appendChild(legendTd);
+    tbody.appendChild(legendRow);
+  }
+
+  table.appendChild(tbody);
+}
+
+function renderCards(subs) {
+  const grid = document.getElementById('cards-grid');
+
+  if (!subs.length) {
+    grid.innerHTML = '<div class="empty-state">No responses yet — share the form link with your family!</div>';
+    return;
+  }
+
+  subs.forEach(s => {
+    const priorities = JSON.parse(s.holiday_priorities || '{}');
+    const availability = JSON.parse(s.availability || '[]');
+    const mustHolidays = HOLIDAY_FULL.filter(h => priorities[h.id] === 'must');
+    const loveHolidays = HOLIDAY_FULL.filter(h => priorities[h.id] === 'love');
+
+    const card = document.createElement('div');
+    card.className = 'card';
+    card.dataset.id = s.id;
+
+    let availText = availability.length
+      ? availability.map(w => `${w.start} – ${w.end}${w.notes ? ` (${w.notes})` : ''}`).join('<br>')
+      : '<span style="color:#555">No windows specified</span>';
+
+    let prioritiesHtml = '';
+    if (mustHolidays.length) {
+      prioritiesHtml += mustHolidays.map(h => `<span class="mini-chip must">${esc(h.label)}</span>`).join('');
+    }
+    if (loveHolidays.length) {
+      prioritiesHtml += loveHolidays.map(h => `<span class="mini-chip love">${esc(h.label)}</span>`).join('');
+    }
+    if (!mustHolidays.length && !loveHolidays.length) {
+      prioritiesHtml = '<span style="color:#555;font-size:12px">Nothing marked as must/love</span>';
+    }
+
+    card.innerHTML = `
+      <div class="card-header">
+        <div>
+          <div class="card-name">${esc(s.name)}</div>
+          <div class="card-group">${esc(GROUP_LABELS[s.family_group] || s.family_group)}</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;">
+          <div class="card-date">${s.submitted_at?.slice(0,10) || ''}</div>
+          <button class="delete-btn" data-id="${s.id}" title="Delete response">×</button>
+        </div>
+      </div>
+
+      <div class="card-section">
+        <div class="card-section-label">Top priorities</div>
+        <div class="mini-priorities">${prioritiesHtml}</div>
+      </div>
+
+      <div class="card-section">
+        <div class="card-section-label">Available windows</div>
+        <div class="card-text">${availText}</div>
+      </div>
+
+      <div class="card-section">
+        <div class="card-section-label">Travel</div>
+        <div class="travel-badges">
+          <span class="badge ${s.can_travel ? 'active' : ''}">Can travel: ${s.can_travel ? 'Yes' : 'No'}</span>
+          <span class="badge ${s.can_host ? 'active' : ''}">Can host: ${s.can_host ? 'Yes' : 'No'}</span>
+          ${s.preferred_location ? `<span class="badge active">${esc(s.preferred_location)}</span>` : ''}
+        </div>
+      </div>
+
+      ${s.special_events ? `
+      <div class="card-section">
+        <div class="card-section-label">Special events they want us at</div>
+        <div class="card-text">${esc(s.special_events)}</div>
+      </div>` : ''}
+
+      ${s.other_notes ? `
+      <div class="card-section">
+        <div class="card-section-label">Other notes</div>
+        <div class="card-text">${esc(s.other_notes)}</div>
+      </div>` : ''}
+    `;
+
+    grid.appendChild(card);
+  });
+
+  grid.addEventListener('click', async (e) => {
+    const btn = e.target.closest('.delete-btn');
+    if (!btn) return;
+    if (!confirm('Delete this response? This cannot be undone.')) return;
+    const id = btn.dataset.id;
+    await fetch(`/api/submissions/${id}`, { method: 'DELETE' });
+    // Reload the page to refresh all views
+    location.reload();
+  });
+}
+
+// Boot: check auth, show the right view
+(async () => {
+  const params = new URLSearchParams(window.location.search);
+  if (params.get('error')) {
+    document.getElementById('login-error').style.display = 'block';
+  }
+
+  const r = await fetch('/api/auth-check');
+  const { ok } = await r.json();
+
+  if (ok) {
+    document.getElementById('login-view').style.display = 'none';
+    document.getElementById('dashboard-view').style.display = 'block';
+    load();
+  }
+})();
+</script>
+</body>
+</html>

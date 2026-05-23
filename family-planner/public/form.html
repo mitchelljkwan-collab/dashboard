@@ -1,0 +1,517 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Family planning — help me get it right</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: #0f0f0f;
+      color: #e8e8e8;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      font-size: 15px;
+      line-height: 1.6;
+      padding: 24px 16px 60px;
+    }
+
+    .container {
+      max-width: 680px;
+      margin: 0 auto;
+    }
+
+    .header {
+      margin-bottom: 36px;
+    }
+
+    .header h1 {
+      font-size: 22px;
+      font-weight: 600;
+      color: #fff;
+      margin-bottom: 14px;
+    }
+
+    .header p {
+      color: #aaa;
+      font-size: 14px;
+      line-height: 1.7;
+    }
+
+    .header p + p {
+      margin-top: 10px;
+    }
+
+    .section {
+      background: #1a1a1a;
+      border: 1px solid #2a2a2a;
+      border-radius: 10px;
+      padding: 24px;
+      margin-bottom: 20px;
+    }
+
+    .section-title {
+      font-size: 15px;
+      font-weight: 600;
+      color: #fff;
+      margin-bottom: 4px;
+    }
+
+    .section-sub {
+      font-size: 13px;
+      color: #777;
+      margin-bottom: 20px;
+    }
+
+    label {
+      display: block;
+      font-size: 13px;
+      color: #bbb;
+      margin-bottom: 6px;
+    }
+
+    input[type="text"],
+    input[type="date"],
+    select,
+    textarea {
+      width: 100%;
+      background: #111;
+      border: 1px solid #333;
+      border-radius: 6px;
+      color: #e8e8e8;
+      font-size: 14px;
+      font-family: inherit;
+      padding: 9px 12px;
+      outline: none;
+      transition: border-color 0.15s;
+      appearance: none;
+      -webkit-appearance: none;
+    }
+
+    input[type="text"]:focus,
+    input[type="date"]:focus,
+    select:focus,
+    textarea:focus {
+      border-color: #555;
+    }
+
+    textarea {
+      resize: vertical;
+      min-height: 80px;
+    }
+
+    select {
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23888' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 12px center;
+      padding-right: 32px;
+    }
+
+    .field + .field {
+      margin-top: 16px;
+    }
+
+    /* Holiday priority grid */
+    .holiday-row {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 10px;
+      align-items: center;
+      padding: 10px 0;
+      border-bottom: 1px solid #222;
+    }
+
+    .holiday-row:last-child {
+      border-bottom: none;
+      padding-bottom: 0;
+    }
+
+    .holiday-row:first-child {
+      padding-top: 0;
+    }
+
+    .holiday-info .holiday-name {
+      font-size: 14px;
+      color: #e8e8e8;
+    }
+
+    .holiday-info .holiday-period {
+      font-size: 12px;
+      color: #666;
+      margin-top: 1px;
+    }
+
+    .priority-chips {
+      display: flex;
+      gap: 5px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+
+    .priority-chip {
+      position: relative;
+    }
+
+    .priority-chip input[type="radio"] {
+      position: absolute;
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+
+    .priority-chip label {
+      display: block;
+      cursor: pointer;
+      background: #111;
+      border: 1px solid #2e2e2e;
+      border-radius: 20px;
+      padding: 4px 10px;
+      font-size: 12px;
+      color: #666;
+      white-space: nowrap;
+      transition: all 0.1s;
+      margin-bottom: 0;
+      user-select: none;
+    }
+
+    .priority-chip input[type="radio"]:checked + label {
+      border-color: transparent;
+      color: #fff;
+    }
+
+    .priority-chip input[value="must"]:checked + label    { background: #7f1d1d; color: #fca5a5; }
+    .priority-chip input[value="love"]:checked + label    { background: #78350f; color: #fcd34d; }
+    .priority-chip input[value="nice"]:checked + label    { background: #064e3b; color: #6ee7b7; }
+    .priority-chip input[value="no"]:checked + label      { background: #1e293b; color: #94a3b8; }
+
+    .priority-chip label:hover {
+      border-color: #444;
+      color: #ccc;
+    }
+
+    /* Availability windows */
+    .avail-window {
+      background: #111;
+      border: 1px solid #2a2a2a;
+      border-radius: 8px;
+      padding: 16px;
+      margin-bottom: 12px;
+    }
+
+    .avail-window-title {
+      font-size: 12px;
+      color: #555;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 12px;
+    }
+
+    .date-range {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .checkboxes {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .checkbox-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      cursor: pointer;
+    }
+
+    .checkbox-row input[type="checkbox"] {
+      width: 16px;
+      height: 16px;
+      accent-color: #555;
+      cursor: pointer;
+      flex-shrink: 0;
+    }
+
+    .checkbox-row span {
+      font-size: 14px;
+      color: #ccc;
+    }
+
+    .submit-area {
+      margin-top: 28px;
+      text-align: center;
+    }
+
+    button[type="submit"] {
+      background: #fff;
+      color: #0f0f0f;
+      border: none;
+      border-radius: 8px;
+      font-size: 15px;
+      font-weight: 600;
+      font-family: inherit;
+      padding: 12px 40px;
+      cursor: pointer;
+      transition: opacity 0.15s;
+    }
+
+    button[type="submit"]:hover {
+      opacity: 0.88;
+    }
+
+    .submit-note {
+      font-size: 12px;
+      color: #555;
+      margin-top: 10px;
+    }
+
+    @media (max-width: 480px) {
+      .holiday-row {
+        grid-template-columns: 1fr;
+        gap: 8px;
+      }
+      .priority-chips {
+        justify-content: flex-start;
+      }
+      .date-range {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1 id="greeting">Help me plan the next couple of years 🗓</h1>
+      <p id="intro">
+        I'm trying to get ahead of our family plans so we can actually make things happen together —
+        rather than me scrambling at the last minute and people rearranging schedules for nothing.
+      </p>
+      <p>
+        Would you mind taking 5–10 minutes to fill this out? There are no wrong answers, and knowing
+        what <em>doesn't</em> matter helps me just as much as knowing what does. Nothing here is binding —
+        I just want to make sure I'm not accidentally missing what's important to you.
+      </p>
+    </div>
+
+    <form method="POST" action="/submit">
+
+      <!-- Section 1: Who -->
+      <div class="section">
+        <div class="section-title">First up — who's this?</div>
+        <div class="section-sub">Just so I know who I'm hearing from.</div>
+
+        <div class="field">
+          <label for="name">Your name (or you + partner)</label>
+          <input type="text" id="name" name="name" placeholder="e.g. Mum &amp; Dad, or just your name" required>
+        </div>
+
+        <div class="field">
+          <label for="family_group">Your family group</label>
+          <select id="family_group" name="family_group" required>
+            <option value="" disabled selected>Select one…</option>
+            <option value="mitchells_parents">Mitchell's parents (Sydney)</option>
+            <option value="wifes_parents">Wife's parents (New Zealand)</option>
+            <option value="mitchells_sister">Mitchell's sister (New York)</option>
+            <option value="other">Someone else</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Section 2: Holiday priorities -->
+      <div class="section">
+        <div class="section-title">Which of these periods really matter to you?</div>
+        <div class="section-sub">
+          Be honest — there are no wrong answers. I've listed the big windows across the next two years.
+          For each one, just pick how important it is that we spend it together.
+        </div>
+
+        <div id="holidays-list">
+          <!-- Rendered by JS below -->
+        </div>
+
+        <div style="margin-top: 16px; padding-top: 14px; border-top: 1px solid #222;">
+          <div class="section-title" style="font-size:13px; margin-bottom:8px;">Priority key</div>
+          <div style="display:flex; gap:8px; flex-wrap:wrap; font-size:12px;">
+            <span style="background:#7f1d1d; color:#fca5a5; border-radius:20px; padding:3px 10px;">⭐ Must</span>
+            <span style="background:#78350f; color:#fcd34d; border-radius:20px; padding:3px 10px;">😊 Would love it</span>
+            <span style="background:#064e3b; color:#6ee7b7; border-radius:20px; padding:3px 10px;">🤷 Nice but nbd</span>
+            <span style="background:#1e293b; color:#94a3b8; border-radius:20px; padding:3px 10px;">— Not fussed</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Section 3: Availability -->
+      <div class="section">
+        <div class="section-title">When are you generally free?</div>
+        <div class="section-sub">
+          Even a rough idea is really helpful. Add up to three windows where you'd be available to
+          travel or host. Doesn't need to be exact — a month range is fine.
+        </div>
+
+        <div class="avail-window">
+          <div class="avail-window-title">Window 1</div>
+          <div class="date-range">
+            <div class="field" style="margin:0;">
+              <label>From</label>
+              <input type="date" name="avail_start_1" min="2026-06-01" max="2028-12-31">
+            </div>
+            <div class="field" style="margin:0;">
+              <label>To</label>
+              <input type="date" name="avail_end_1" min="2026-06-01" max="2028-12-31">
+            </div>
+          </div>
+          <div class="field" style="margin-top:10px;">
+            <label>Any notes about this period? (optional)</label>
+            <input type="text" name="avail_notes_1" placeholder="e.g. school holidays, works better for us, etc.">
+          </div>
+        </div>
+
+        <div class="avail-window">
+          <div class="avail-window-title">Window 2 (optional)</div>
+          <div class="date-range">
+            <div class="field" style="margin:0;">
+              <label>From</label>
+              <input type="date" name="avail_start_2" min="2026-06-01" max="2028-12-31">
+            </div>
+            <div class="field" style="margin:0;">
+              <label>To</label>
+              <input type="date" name="avail_end_2" min="2026-06-01" max="2028-12-31">
+            </div>
+          </div>
+          <div class="field" style="margin-top:10px;">
+            <label>Notes (optional)</label>
+            <input type="text" name="avail_notes_2" placeholder="">
+          </div>
+        </div>
+
+        <div class="avail-window">
+          <div class="avail-window-title">Window 3 (optional)</div>
+          <div class="date-range">
+            <div class="field" style="margin:0;">
+              <label>From</label>
+              <input type="date" name="avail_start_3" min="2026-06-01" max="2028-12-31">
+            </div>
+            <div class="field" style="margin:0;">
+              <label>To</label>
+              <input type="date" name="avail_end_3" min="2026-06-01" max="2028-12-31">
+            </div>
+          </div>
+          <div class="field" style="margin-top:10px;">
+            <label>Notes (optional)</label>
+            <input type="text" name="avail_notes_3" placeholder="">
+          </div>
+        </div>
+
+        <div style="margin-top:20px;">
+          <label style="color:#fff; margin-bottom:12px; display:block;">Travel and hosting</label>
+          <div class="checkboxes">
+            <label class="checkbox-row">
+              <input type="checkbox" name="can_travel" value="1">
+              <span>We're happy to travel to you / wherever works</span>
+            </label>
+            <label class="checkbox-row">
+              <input type="checkbox" name="can_host" value="1">
+              <span>We can host people (you're welcome to stay with us)</span>
+            </label>
+          </div>
+          <div class="field" style="margin-top:14px;">
+            <label>If you can host — where would that be? (optional)</label>
+            <input type="text" name="preferred_location" placeholder="e.g. Sydney, Auckland, New York…">
+          </div>
+        </div>
+      </div>
+
+      <!-- Section 4: Special events -->
+      <div class="section">
+        <div class="section-title">Anything you'd really love us to be there for?</div>
+        <div class="section-sub">
+          A milestone birthday, a special event, something you've got planned — I'd love to know about it.
+          Even if it feels small, it helps me prioritise. Totally optional.
+        </div>
+        <textarea name="special_events" placeholder="e.g. Dad's 70th birthday in March 2027, our anniversary trip, etc."></textarea>
+      </div>
+
+      <!-- Section 5: Other notes -->
+      <div class="section">
+        <div class="section-title">Anything else that'd help me plan?</div>
+        <div class="section-sub">
+          Upcoming life changes, things you've already committed to, anything I should be
+          aware of. Totally optional, and nothing you share will be held against you — I just
+          want to plan around reality, not assumptions.
+        </div>
+        <textarea name="other_notes" placeholder="e.g. big trip planned for mid-2027, health stuff, financial considerations, etc."></textarea>
+      </div>
+
+      <div class="submit-area">
+        <button type="submit">Send it through ✓</button>
+        <p class="submit-note">Only Mitchell sees your responses. Nothing you say is binding.</p>
+      </div>
+
+    </form>
+  </div>
+
+  <script>
+    const HOLIDAYS = [
+      { id: 'christmas_2026',  label: "Christmas & New Year's", period: 'Dec 2026 – Jan 2027' },
+      { id: 'easter_2027',     label: 'Easter',                  period: 'April 2027' },
+      { id: 'school_mid_2027', label: 'Mid-year school break',   period: 'June / July 2027 (AU & NZ winter)' },
+      { id: 'christmas_2027',  label: "Christmas & New Year's",  period: 'Dec 2027 – Jan 2028' },
+      { id: 'easter_2028',     label: 'Easter',                  period: 'March / April 2028' },
+      { id: 'school_mid_2028', label: 'Mid-year school break',   period: 'June / July 2028 (AU & NZ winter)' },
+      { id: 'baby_first_visit', label: "Meeting the new baby",   period: 'Oct / Nov 2026 (Mitchell\'s sister\'s baby, due Sep 2026)' },
+      { id: 'baby_bday_2027',  label: "Baby's first birthday",   period: 'September 2027' },
+    ];
+
+    const PRIORITIES = [
+      { value: 'must', label: '⭐ Must' },
+      { value: 'love', label: '😊 Love it' },
+      { value: 'nice', label: '🤷 Nice' },
+      { value: 'no',   label: '— Not fussed' },
+    ];
+
+    const list = document.getElementById('holidays-list');
+    HOLIDAYS.forEach(h => {
+      const row = document.createElement('div');
+      row.className = 'holiday-row';
+
+      const info = document.createElement('div');
+      info.className = 'holiday-info';
+      info.innerHTML = `<div class="holiday-name">${h.label}</div><div class="holiday-period">${h.period}</div>`;
+
+      const chips = document.createElement('div');
+      chips.className = 'priority-chips';
+
+      PRIORITIES.forEach((p, i) => {
+        const chip = document.createElement('div');
+        chip.className = 'priority-chip';
+        const inputId = `${h.id}_${p.value}`;
+        chip.innerHTML = `
+          <input type="radio" name="priority_${h.id}" id="${inputId}" value="${p.value}"${p.value === 'no' ? ' checked' : ''}>
+          <label for="${inputId}">${p.label}</label>
+        `;
+        chips.appendChild(chip);
+      });
+
+      row.appendChild(info);
+      row.appendChild(chips);
+      list.appendChild(row);
+    });
+
+    // Personalise greeting from ?for= query param
+    const forParam = new URLSearchParams(window.location.search).get('for');
+    const greetings = {
+      'mum-dad':  { title: 'Hey Mum &amp; Dad — help me plan the next couple of years 🗓', group: 'mitchells_parents' },
+      'in-laws':  { title: 'Help me plan the next couple of years — from Libby 🗓',         group: 'wifes_parents' },
+      'sis':      { title: 'Hey sis — help me plan the next couple of years 🗓',            group: 'mitchells_sister' },
+    };
+
+    if (forParam && greetings[forParam]) {
+      document.getElementById('greeting').innerHTML = greetings[forParam].title;
+      const sel = document.getElementById('family_group');
+      sel.value = greetings[forParam].group;
+    }
+  </script>
+</body>
+</html>

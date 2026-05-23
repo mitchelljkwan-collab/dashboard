@@ -1,6 +1,6 @@
 require('dotenv').config();
 const express = require('express');
-const session = require('express-session');
+const cookieSession = require('cookie-session');
 const path = require('path');
 const db = require('./db');
 
@@ -10,33 +10,35 @@ const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'family2026';
 const SESSION_SECRET = process.env.SESSION_SECRET || 'family-planner-dev-secret';
 
 const HOLIDAYS = [
-  { id: 'christmas_2026', label: "Christmas & New Year's", period: 'Dec 2026 – Jan 2027' },
-  { id: 'easter_2027',    label: 'Easter',                  period: 'April 2027' },
-  { id: 'school_mid_2027', label: 'Mid-year school break',  period: 'June / July 2027' },
-  { id: 'christmas_2027', label: "Christmas & New Year's",  period: 'Dec 2027 – Jan 2028' },
-  { id: 'easter_2028',    label: 'Easter',                  period: 'March / April 2028' },
-  { id: 'school_mid_2028', label: 'Mid-year school break',  period: 'June / July 2028' },
-  { id: 'baby_first_visit', label: "Meeting the new baby",  period: 'Oct / Nov 2026' },
-  { id: 'baby_bday_2027', label: "Baby's first birthday",   period: 'September 2027' },
+  { id: 'christmas_2026',  label: "Christmas & New Year's", period: 'Dec 2026 – Jan 2027' },
+  { id: 'easter_2027',     label: 'Easter',                  period: 'April 2027' },
+  { id: 'school_mid_2027', label: 'Mid-year school break',   period: 'June / July 2027' },
+  { id: 'christmas_2027',  label: "Christmas & New Year's",  period: 'Dec 2027 – Jan 2028' },
+  { id: 'easter_2028',     label: 'Easter',                  period: 'March / April 2028' },
+  { id: 'school_mid_2028', label: 'Mid-year school break',   period: 'June / July 2028' },
+  { id: 'baby_first_visit', label: "Meeting the new baby",   period: 'Oct / Nov 2026' },
+  { id: 'baby_bday_2027',  label: "Baby's first birthday",   period: 'September 2027' },
 ];
 
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
-app.use(session({
-  secret: SESSION_SECRET,
-  resave: false,
-  saveUninitialized: false,
-  cookie: { maxAge: 8 * 60 * 60 * 1000 }, // 8 hours
+app.use(cookieSession({
+  name: 'fp_sess',
+  keys: [SESSION_SECRET],
+  maxAge: 8 * 60 * 60 * 1000,
+  httpOnly: true,
+  sameSite: 'lax',
+  secure: process.env.NODE_ENV === 'production',
 }));
 app.use(express.static(path.join(__dirname, 'public')));
 
 function requireAdmin(req, res, next) {
-  if (req.session.isAdmin) return next();
+  if (req.session?.isAdmin) return next();
   res.status(401).json({ error: 'Not authenticated' });
 }
 
 // Form submission
-app.post('/submit', (req, res) => {
+app.post('/submit', async (req, res) => {
   const body = req.body;
 
   const holidayPriorities = {};
@@ -53,16 +55,16 @@ app.post('/submit', (req, res) => {
     }
   }
 
-  db.insertSubmission({
-    name:              body.name?.trim() || 'Unknown',
-    family_group:      body.family_group || 'other',
+  await db.insertSubmission({
+    name:               body.name?.trim() || 'Unknown',
+    family_group:       body.family_group || 'other',
     holiday_priorities: JSON.stringify(holidayPriorities),
-    availability:      JSON.stringify(availability),
-    can_travel:        body.can_travel ? 1 : 0,
-    can_host:          body.can_host   ? 1 : 0,
+    availability:       JSON.stringify(availability),
+    can_travel:         body.can_travel ? 1 : 0,
+    can_host:           body.can_host   ? 1 : 0,
     preferred_location: body.preferred_location?.trim() || '',
-    special_events:    body.special_events?.trim() || '',
-    other_notes:       body.other_notes?.trim() || '',
+    special_events:     body.special_events?.trim() || '',
+    other_notes:        body.other_notes?.trim() || '',
   });
 
   res.redirect('/thanks.html');
@@ -79,26 +81,26 @@ app.post('/admin/login', (req, res) => {
 });
 
 app.get('/admin/logout', (req, res) => {
-  req.session.destroy();
+  req.session = null;
   res.redirect('/admin.html');
 });
 
 // Admin API
 app.get('/api/auth-check', (req, res) => {
-  res.json({ ok: !!req.session.isAdmin });
+  res.json({ ok: !!req.session?.isAdmin });
 });
 
-app.get('/api/submissions', requireAdmin, (req, res) => {
-  res.json(db.getAllSubmissions());
+app.get('/api/submissions', requireAdmin, async (req, res) => {
+  res.json(await db.getAllSubmissions());
 });
 
-app.delete('/api/submissions/:id', requireAdmin, (req, res) => {
-  db.deleteSubmission(Number(req.params.id));
+app.delete('/api/submissions/:id', requireAdmin, async (req, res) => {
+  await db.deleteSubmission(Number(req.params.id));
   res.json({ ok: true });
 });
 
-app.get('/api/export.csv', requireAdmin, (req, res) => {
-  const rows = db.getAllSubmissions();
+app.get('/api/export.csv', requireAdmin, async (req, res) => {
+  const rows = await db.getAllSubmissions();
   const holidayHeaders = HOLIDAYS.map(h => `"${h.label} (${h.period})"`).join(',');
   const header = `Name,Family Group,Submitted,${holidayHeaders},Can Travel,Can Host,Preferred Location,Special Events,Notes\n`;
 
@@ -123,8 +125,13 @@ app.get('/api/export.csv', requireAdmin, (req, res) => {
   res.send(header + lines.join('\n'));
 });
 
-app.listen(PORT, () => {
-  console.log(`Family planner running at http://localhost:${PORT}`);
-  console.log(`  Form:  http://localhost:${PORT}/form.html`);
-  console.log(`  Admin: http://localhost:${PORT}/admin.html`);
-});
+// Local dev: listen. Vercel: export.
+if (require.main === module) {
+  app.listen(PORT, () => {
+    console.log(`Family planner running at http://localhost:${PORT}`);
+    console.log(`  Form:  http://localhost:${PORT}/form.html`);
+    console.log(`  Admin: http://localhost:${PORT}/admin.html`);
+  });
+}
+
+module.exports = app;
